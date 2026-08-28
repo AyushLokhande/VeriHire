@@ -771,66 +771,70 @@ function ComparisonModal({
   };
   onClose: () => void;
 }) {
-  const candidateA =
-    results.A.finalDecision;
+  const candidateA = results.A.finalDecision;
+  const candidateB = results.B.finalDecision;
 
-  const candidateB =
-    results.B.finalDecision;
-
+  /*
+    Find an agent score without depending on an exact
+    capitalization/name match.
+  */
   const getScore = (
     opinions: AgentOpinion[],
-    agent: string
+    keywords: string[]
   ) => {
-    const opinion = opinions.find(
-      (x) => x.agent === agent
-    );
+    const opinion = opinions.find((item) => {
+      const name = item.agent.toLowerCase();
+
+      return keywords.some((keyword) =>
+        name.includes(keyword.toLowerCase())
+      );
+    });
 
     return opinion?.score ?? null;
   };
 
   const technicalA = getScore(
     results.A.opinions,
-    "Technical Agent"
+    ["technical"]
   );
 
   const technicalB = getScore(
     results.B.opinions,
-    "Technical Agent"
+    ["technical"]
   );
 
   const hiringA = getScore(
     results.A.opinions,
-    "Hiring Manager Agent"
+    ["hiring", "manager"]
   );
 
   const hiringB = getScore(
     results.B.opinions,
-    "Hiring Manager Agent"
+    ["hiring", "manager"]
   );
 
   const skepticA = getScore(
     results.A.opinions,
-    "Skeptic Agent"
+    ["skeptic", "risk"]
   );
 
   const skepticB = getScore(
     results.B.opinions,
-    "Skeptic Agent"
+    ["skeptic", "risk"]
   );
 
   return (
     <div
       className="modal-backdrop"
       onMouseDown={(e) => {
-        if (
-          e.target ===
-          e.currentTarget
-        ) {
+        if (e.target === e.currentTarget) {
           onClose();
         }
       }}
     >
       <div className="comparison-modal">
+
+        {/* HEADER */}
 
         <div className="modal-header">
           <div>
@@ -843,10 +847,9 @@ function ComparisonModal({
             </h2>
 
             <p>
-              A side-by-side view of
-              the evidence, panel
-              scores and final
-              recommendations.
+              A side-by-side view of the
+              evidence, panel scores and
+              final recommendations.
             </p>
           </div>
 
@@ -859,9 +862,13 @@ function ComparisonModal({
           </button>
         </div>
 
+
+        {/* CANDIDATES */}
+
         <div className="comparison-candidates">
 
           <div className="comparison-candidate">
+
             <span className="candidate-label">
               CANDIDATE A
             </span>
@@ -871,29 +878,31 @@ function ComparisonModal({
             </h3>
 
             <div className="comparison-verdict">
-              {
-                candidateA.recommendation
-              }
+              {candidateA.recommendation}
             </div>
 
             <div className="comparison-confidence">
+
               {Math.round(
-                candidateA.confidence *
-                  100
+                candidateA.confidence
               )}
               %
 
               <span>
                 FINAL CONFIDENCE
               </span>
+
             </div>
           </div>
+
 
           <div className="comparison-divider">
             VS
           </div>
 
+
           <div className="comparison-candidate">
+
             <span className="candidate-label">
               CANDIDATE B
             </span>
@@ -903,33 +912,40 @@ function ComparisonModal({
             </h3>
 
             <div className="comparison-verdict">
-              {
-                candidateB.recommendation
-              }
+              {candidateB.recommendation}
             </div>
 
             <div className="comparison-confidence">
+
               {Math.round(
-                candidateB.confidence *
-                  100
+                candidateB.confidence
               )}
               %
 
               <span>
                 FINAL CONFIDENCE
               </span>
+
             </div>
           </div>
+
         </div>
 
+
+        {/* PANEL SCORES */}
+
         <div className="comparison-section">
+
           <div className="comparison-section-title">
             PANEL SCORES
           </div>
 
           <div className="score-comparison">
 
+            {/* TECHNICAL */}
+
             <div className="score-row">
+
               <span>
                 Technical Evaluation
               </span>
@@ -941,9 +957,7 @@ function ComparisonModal({
               <div className="compare-bar">
                 <i
                   style={{
-                    width: `${
-                      technicalA ?? 0
-                    }%`,
+                    width: `${technicalA ?? 0}%`,
                   }}
                 />
               </div>
@@ -951,9 +965,14 @@ function ComparisonModal({
               <strong>
                 {technicalB ?? "N/A"}
               </strong>
+
             </div>
 
+
+            {/* HIRING MANAGER */}
+
             <div className="score-row">
+
               <span>
                 Hiring Manager
               </span>
@@ -965,9 +984,7 @@ function ComparisonModal({
               <div className="compare-bar">
                 <i
                   style={{
-                    width: `${
-                      hiringA ?? 0
-                    }%`,
+                    width: `${hiringA ?? 0}%`,
                   }}
                 />
               </div>
@@ -975,9 +992,14 @@ function ComparisonModal({
               <strong>
                 {hiringB ?? "N/A"}
               </strong>
+
             </div>
 
+
+            {/* SKEPTIC */}
+
             <div className="score-row">
+
               <span>
                 Skeptic Evaluation
               </span>
@@ -989,9 +1011,7 @@ function ComparisonModal({
               <div className="compare-bar">
                 <i
                   style={{
-                    width: `${
-                      skepticA ?? 0
-                    }%`,
+                    width: `${skepticA ?? 0}%`,
                   }}
                 />
               </div>
@@ -999,19 +1019,28 @@ function ComparisonModal({
               <strong>
                 {skepticB ?? "N/A"}
               </strong>
+
             </div>
 
           </div>
+
         </div>
+
+
+        {/* STRENGTHS + CONCERNS */}
 
         <div className="comparison-columns">
 
+          {/* ROHAN STRENGTHS */}
+
           <div>
+
             <div className="comparison-section-title">
               ROHAN · STRENGTHS
             </div>
 
             <div className="comparison-list">
+
               {candidateA.strengths
                 .slice(0, 4)
                 .map((item, i) => (
@@ -1019,15 +1048,22 @@ function ComparisonModal({
                     {item}
                   </div>
                 ))}
+
             </div>
+
           </div>
 
+
+          {/* ANANYA STRENGTHS */}
+
           <div>
+
             <div className="comparison-section-title">
               ANANYA · STRENGTHS
             </div>
 
             <div className="comparison-list">
+
               {candidateB.strengths
                 .slice(0, 4)
                 .map((item, i) => (
@@ -1035,15 +1071,22 @@ function ComparisonModal({
                     {item}
                   </div>
                 ))}
+
             </div>
+
           </div>
 
+
+          {/* ROHAN CONCERNS */}
+
           <div>
+
             <div className="comparison-section-title">
               ROHAN · CONCERNS
             </div>
 
             <div className="comparison-list concerns">
+
               {candidateA.concerns
                 .slice(0, 4)
                 .map((item, i) => (
@@ -1051,15 +1094,22 @@ function ComparisonModal({
                     {item}
                   </div>
                 ))}
+
             </div>
+
           </div>
 
+
+          {/* ANANYA CONCERNS */}
+
           <div>
+
             <div className="comparison-section-title">
               ANANYA · CONCERNS
             </div>
 
             <div className="comparison-list concerns">
+
               {candidateB.concerns
                 .slice(0, 4)
                 .map((item, i) => (
@@ -1067,16 +1117,21 @@ function ComparisonModal({
                     {item}
                   </div>
                 ))}
+
             </div>
+
           </div>
 
         </div>
 
+
+        {/* FOOTER */}
+
         <div className="comparison-footer">
+
           <span>
-            Comparison is based on
-            the completed panel
-            evaluation.
+            Comparison is based on the
+            completed panel evaluation.
           </span>
 
           <button
@@ -1085,6 +1140,7 @@ function ComparisonModal({
           >
             CLOSE COMPARISON
           </button>
+
         </div>
 
       </div>
