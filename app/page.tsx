@@ -1176,67 +1176,545 @@ export default function Home() {
      RUN A/B PANEL
      ======================================================= */
 
-  async function run() {
-    setLoading(true);
-    setError("");
-    setResults(null);
-    setShowComparison(false);
+ async function run() {
+  setLoading(true);
+  setError("");
+  setResults(null);
+  setShowComparison(false);
 
-    setRevealed({
-      A: false,
-      B: false,
-      CUSTOM: false,
-    });
+  setRevealed({
+    A: false,
+    B: false,
+    CUSTOM: false,
+  });
 
-    try {
-      const response =
-        await fetch("/api/panel", {
-          method: "POST",
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-          body: JSON.stringify({
-            job: JOB,
+  // Local demo mode.
+  // No Gemini API call is made here.
+  await new Promise((resolve) =>
+    setTimeout(resolve, 1200)
+  );
 
-            candidates: {
-              A: {
-                resume: resumeA,
-                transcript:
-                  transcriptA,
-              },
+  const localResults = {
+    A: {
+      profile: {
+        name: "Rohan Malhotra",
+        education: [
+          "B.Tech Computer Science, 2022",
+        ],
+        skills: [
+          "Python",
+          "FastAPI",
+          "LangGraph",
+          "CrewAI",
+          "MongoDB",
+          "RAG",
+          "Vector Search",
+          "Prompt Engineering",
+          "Docker",
+          "Kubernetes",
+        ],
+        experience: [
+          "3.5 years AI/backend experience",
+          "Senior AI Engineer at Voltrix Logistics Tech",
+          "Built production multi-agent freight systems",
+        ],
+        projects: [
+          "Production planner/executor/reviewer freight exception platform",
+          "RAG pipeline over carrier rate documents",
+          "OCR improvements for BOL/invoice extraction",
+        ],
+        claims: [
+          "Reduced manual exception review time by 40%",
+          "Reduced inference cost by ~30%",
+          "Retry/escalation logic handles 5,000+ freight exceptions/month",
+        ],
+        importantEvidence: [
+          "Built a planner-executor-reviewer system for freight exceptions.",
+          "Uses LangGraph and CrewAI according to the resume.",
+          "Later clarified that 'sole architect' was too strong and Priya built most of the production version.",
+        ],
+      },
 
-              B: {
-                resume: resumeB,
-                transcript:
-                  transcriptB,
-              },
+      opinions: [
+        {
+          agent: "Arjun Mehta",
+          score: 91,
+          confidence: 91,
+          recommendation: "Strong hire",
+          strengths: [
+            "Direct production multi-agent experience",
+            "Strong Python/backend foundation",
+            "Relevant RAG, vector search, OCR and model-routing experience",
+          ],
+          concerns: [
+            "Some performance/model-routing decisions were tuned informally rather than through formal studies",
+          ],
+          evidence: [
+            {
+              quote:
+                "It's planner-executor-reviewer. Failures come in, get classified, retried or escalated, then double-checked.",
+              source: "Transcript · Q1",
+              why:
+                "Directly demonstrates experience with the role's agentic architecture.",
             },
-          }),
-        });
+            {
+              quote:
+                "Cost-based. Simple stuff to the SLM, harder reasoning to GPT-4.",
+              source: "Transcript · Q4",
+              why:
+                "Shows practical model-routing experience relevant to quality/cost tradeoffs.",
+            },
+          ],
+          insufficientInfo: [],
+        },
 
-      const data =
-        await response.json();
+        {
+          agent: "Daniel Brooks",
+          score: 87,
+          confidence: 88,
+          recommendation: "Hire",
+          strengths: [
+            "Strong production ownership",
+            "Relevant freight-domain experience",
+            "Demonstrated ability to work across backend and AI systems",
+          ],
+          concerns: [
+            "Some ownership claims required clarification during the interview",
+          ],
+          evidence: [
+            {
+              quote:
+                "I designed the whole retry/escalation logic.",
+              source: "Transcript · Q1",
+              why:
+                "Supports strong ownership of a production component.",
+            },
+          ],
+          insufficientInfo: [],
+        },
 
-      if (!response.ok) {
-        throw new Error(
-          data.error ||
-            "Panel failed"
-        );
-      }
+        {
+          agent: "Marcus Reed",
+          score: 89,
+          confidence: 90,
+          recommendation: "Strong hire",
+          strengths: [
+            "Very strong role alignment",
+            "Production AI experience",
+            "Relevant freight and document-processing exposure",
+          ],
+          concerns: [
+            "Some impact measurements are based on internal estimates",
+          ],
+          evidence: [
+            {
+              quote:
+                "cutting manual exception review time by 40%",
+              source: "Resume",
+              why:
+                "Directly relates to measurable production impact.",
+            },
+          ],
+          insufficientInfo: [],
+        },
 
-      setResults(data);
+        {
+          agent: "Ethan Cole",
+          score: 78,
+          confidence: 86,
+          recommendation: "Hire with verification",
+          strengths: [
+            "Strong technical background",
+            "Good match for multi-agent systems",
+            "Evidence of real production work",
+          ],
+          concerns: [
+            "Several high-impact claims deserve stronger measurement",
+            "One ownership claim was softened during questioning",
+          ],
+          evidence: [
+            {
+              quote:
+                "sole architect was too strong. I led the design, she built most of the production version.",
+              source: "Transcript · Q7",
+              why:
+                "Shows an important correction to an earlier claim.",
+            },
+          ],
+          insufficientInfo: [
+            "Formal benchmark methodology for reported performance improvements",
+          ],
+        },
+      ],
 
-    } catch (e) {
-      setError(
-        e instanceof Error
-          ? e.message
-          : String(e)
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
+      debate: [
+        {
+          speaker: "Arjun Mehta",
+          respondingTo: "Ethan Cole",
+          response:
+            "The ownership concern matters, but the transcript still shows direct involvement in retry and escalation design.",
+          changedMind: false,
+          updatedScore: 91,
+          evidence: [
+            {
+              quote:
+                "I designed the whole retry/escalation logic.",
+              source: "Transcript · Q1",
+              why:
+                "Supports meaningful technical ownership.",
+            },
+          ],
+        },
+
+        {
+          speaker: "Ethan Cole",
+          respondingTo: "Arjun Mehta",
+          response:
+            "I agree that the technical contribution is strong. My concern is specifically about how broadly the original ownership claim was stated.",
+          changedMind: true,
+          updatedScore: 84,
+          evidence: [
+            {
+              quote:
+                "sole architect was too strong",
+              source: "Transcript · Q7",
+              why:
+                "The candidate voluntarily corrected the claim.",
+            },
+          ],
+        },
+
+        {
+          speaker: "Marcus Reed",
+          respondingTo: "Ethan Cole",
+          response:
+            "The correction actually increases confidence in the candidate's honesty because the clarification was explicit.",
+          changedMind: true,
+          updatedScore: 90,
+          evidence: [
+            {
+              quote:
+                "she built most of the production version",
+              source: "Transcript · Q7",
+              why:
+                "Shows willingness to accurately describe contribution.",
+            },
+          ],
+        },
+
+        {
+          speaker: "Daniel Brooks",
+          respondingTo: "Marcus Reed",
+          response:
+            "Agreed. The remaining issue is measurement quality rather than technical capability.",
+          changedMind: false,
+          updatedScore: 87,
+          evidence: [
+            {
+              quote:
+                "reducing inference cost by ~30%",
+              source: "Resume",
+              why:
+                "Provides evidence of optimization impact, although methodology is not fully documented.",
+            },
+          ],
+        },
+      ],
+
+      finalDecision: {
+        recommendation: "Hire",
+        confidence: 91,
+        reasoning:
+          "The candidate shows strong direct experience with production multi-agent systems, Python backends, RAG, model routing, OCR and freight operations. The panel identified some overstatement around ownership, but the candidate corrected the claim during the interview. The remaining concerns are mainly around measurement methodology rather than core capability.",
+        strengths: [
+          "Strong production multi-agent experience",
+          "Excellent alignment with the freight AI role",
+          "Strong Python/backend foundation",
+          "Relevant RAG, OCR and model-routing experience",
+        ],
+        concerns: [
+          "Some performance claims lack formal measurement methodology",
+          "One ownership claim required clarification",
+        ],
+        unresolvedDisagreements: [
+          "How much weight should be given to informally measured performance improvements",
+        ],
+        evidence: [
+          {
+            quote:
+              "I designed the whole retry/escalation logic.",
+            source: "Transcript · Q1",
+            why:
+              "Direct evidence of technical ownership.",
+          },
+          {
+            quote:
+              "sole architect was too strong",
+            source: "Transcript · Q7",
+            why:
+              "Demonstrates correction of an overstated claim.",
+          },
+        ],
+      },
+    },
+
+    B: {
+      profile: {
+        name: "Ananya Iyer",
+        education: [
+          "B.E. Information Technology, 2019",
+        ],
+        skills: [
+          "Python",
+          "FastAPI",
+          "MongoDB",
+          "PostgreSQL",
+          "LangChain",
+          "Chroma",
+          "React",
+          "OCR",
+          "Docker",
+        ],
+        experience: [
+          "4+ years backend engineering",
+          "Software Engineer II at Bridgepoint Systems",
+          "Built internal RAG-based support-ticket assistant",
+        ],
+        projects: [
+          "RAG-based support-ticket assistant",
+          "OCR document ingestion pipeline",
+          "Python/FastAPI internal operations platform",
+        ],
+        claims: [
+          "Around 40% improvement in answer accuracy",
+          "Improved OCR document extraction",
+        ],
+        importantEvidence: [
+          "RAG pipeline used Chroma and LangChain.",
+          "Candidate explicitly stated that multi-agent frameworks were not used in production.",
+          "Candidate clarified that the 40% accuracy improvement was based on informal internal review.",
+        ],
+      },
+
+      opinions: [
+        {
+          agent: "Arjun Mehta",
+          score: 72,
+          confidence: 94,
+          recommendation: "Needs More Evidence",
+          strengths: [
+            "Solid Python/backend experience",
+            "Useful RAG and OCR exposure",
+            "Clear technical communication",
+          ],
+          concerns: [
+            "No production multi-agent orchestration experience",
+            "Limited depth in the core requirements of the role",
+          ],
+          evidence: [
+            {
+              quote:
+                "Not in production.",
+              source: "Transcript · Q3",
+              why:
+                "Directly confirms the candidate's multi-agent experience gap.",
+            },
+          ],
+          insufficientInfo: [],
+        },
+
+        {
+          agent: "Daniel Brooks",
+          score: 76,
+          confidence: 91,
+          recommendation: "Needs More Evidence",
+          strengths: [
+            "Stable backend experience",
+            "Production incident experience",
+            "Good communication and honesty",
+          ],
+          concerns: [
+            "Limited agentic systems experience",
+          ],
+          evidence: [
+            {
+              quote:
+                "I'd rather say that clearly than talk around it.",
+              source: "Transcript · Q3",
+              why:
+                "Strong evidence of transparent communication.",
+            },
+          ],
+          insufficientInfo: [],
+        },
+
+        {
+          agent: "Marcus Reed",
+          score: 74,
+          confidence: 89,
+          recommendation: "Needs More Evidence",
+          strengths: [
+            "Relevant RAG experience",
+            "OCR experience",
+            "Production backend experience",
+          ],
+          concerns: [
+            "Core multi-agent requirement remains unproven",
+          ],
+          evidence: [
+            {
+              quote:
+                "everything I've actually shipped has been single-agent RAG.",
+              source: "Transcript · Q3",
+              why:
+                "Directly limits the candidate's demonstrated agentic experience.",
+            },
+          ],
+          insufficientInfo: [],
+        },
+
+        {
+          agent: "Ethan Cole",
+          score: 82,
+          confidence: 93,
+          recommendation: "Consider for interview",
+          strengths: [
+            "Strong honesty",
+            "Good backend foundation",
+            "Clear understanding of current limitations",
+          ],
+          concerns: [
+            "Would require significant ramp-up on multi-agent production systems",
+          ],
+          evidence: [
+            {
+              quote:
+                "That’s a real gap relative to what this role needs.",
+              source: "Transcript · Q3",
+              why:
+                "Candidate demonstrates accurate self-assessment.",
+            },
+          ],
+          insufficientInfo: [],
+        },
+      ],
+
+      debate: [
+        {
+          speaker: "Arjun Mehta",
+          respondingTo: "Ethan Cole",
+          response:
+            "Her honesty is valuable, but it doesn't remove the production multi-agent gap.",
+          changedMind: false,
+          updatedScore: 72,
+          evidence: [
+            {
+              quote:
+                "Not in production.",
+              source: "Transcript · Q3",
+              why:
+                "Confirms the central experience gap.",
+            },
+          ],
+        },
+
+        {
+          speaker: "Ethan Cole",
+          respondingTo: "Arjun Mehta",
+          response:
+            "Fair. I would still increase confidence in the candidate's ability to ramp because she has already built RAG systems in production.",
+          changedMind: true,
+          updatedScore: 80,
+          evidence: [
+            {
+              quote:
+                "started building an internal RAG-based support-ticket assistant",
+              source: "Resume",
+              why:
+                "Shows relevant applied AI experience.",
+            },
+          ],
+        },
+
+        {
+          speaker: "Marcus Reed",
+          respondingTo: "Ethan Cole",
+          response:
+            "The RAG experience is relevant, but the role specifically requires multi-agent orchestration.",
+          changedMind: false,
+          updatedScore: 74,
+          evidence: [
+            {
+              quote:
+                "everything I've actually shipped has been single-agent RAG.",
+              source: "Transcript · Q3",
+              why:
+                "Shows the difference between current capability and role requirements.",
+            },
+          ],
+        },
+
+        {
+          speaker: "Daniel Brooks",
+          respondingTo: "Marcus Reed",
+          response:
+            "I agree. Her strongest differentiator is transparency, not direct role fit.",
+          changedMind: false,
+          updatedScore: 76,
+          evidence: [
+            {
+              quote:
+                "I'd rather say that clearly than talk around it.",
+              source: "Transcript · Q3",
+              why:
+                "Strong communication and honesty evidence.",
+            },
+          ],
+        },
+      ],
+
+      finalDecision: {
+        recommendation: "Needs More Evidence",
+        confidence: 89,
+        reasoning:
+          "The candidate has solid backend, RAG and OCR experience and communicates limitations honestly. However, the role specifically requires production multi-agent systems experience, which the candidate explicitly does not have. The panel therefore recommends further evaluation rather than treating the candidate as an immediate hire.",
+        strengths: [
+          "Strong Python/backend foundation",
+          "Useful RAG and OCR experience",
+          "Good production engineering experience",
+          "Strong honesty and communication",
+        ],
+        concerns: [
+          "No production multi-agent orchestration experience",
+          "Would require ramp-up on LangGraph/CrewAI-style systems",
+        ],
+        unresolvedDisagreements: [
+          "How much the candidate's RAG experience offsets the multi-agent experience gap",
+        ],
+        evidence: [
+          {
+            quote:
+              "Not in production.",
+            source: "Transcript · Q3",
+            why:
+              "Directly establishes the main experience gap.",
+          },
+          {
+            quote:
+              "everything I've actually shipped has been single-agent RAG.",
+            source: "Transcript · Q3",
+            why:
+              "Confirms the scope of shipped AI experience.",
+          },
+        ],
+      },
+    },
+  };
+
+  setResults(localResults);
+
+  setLoading(false);
+}
 
   /* =======================================================
      RUN CUSTOM CANDIDATE
@@ -1460,12 +1938,7 @@ export default function Home() {
 
             </div>
 
-            <button
-              className="ghost"
-              onClick={loadDemo}
-            >
-              ↺ Load official demo data
-            </button>
+            
 
           </div>
 
@@ -1538,60 +2011,73 @@ export default function Home() {
 
           {/* CANDIDATE TABS */}
 
-          <div className="candidate-tabs">
+          {/* CANDIDATE TABS + DEMO BUTTON */}
 
-            <button
-              className={
-                active === "A"
-                  ? "tab active"
-                  : "tab"
-              }
-              onClick={() =>
-                setActive("A")
-              }
-            >
-              CANDIDATE A
+<div className="candidate-controls">
 
-              <small>
-                ROHAN MALHOTRA
-              </small>
-            </button>
+  <div className="candidate-tabs">
 
-            <button
-              className={
-                active === "B"
-                  ? "tab active"
-                  : "tab"
-              }
-              onClick={() =>
-                setActive("B")
-              }
-            >
-              CANDIDATE B
+    <button
+      className={
+        active === "A"
+          ? "tab active"
+          : "tab"
+      }
+      onClick={() =>
+        setActive("A")
+      }
+    >
+      CANDIDATE A
 
-              <small>
-                ANANYA IYER
-              </small>
-            </button>
+      <small>
+        ROHAN MALHOTRA
+      </small>
+    </button>
 
-            <button
-              className={
-                active === "CUSTOM"
-                  ? "tab active custom-tab"
-                  : "tab custom-tab"
-              }
-              onClick={() =>
-                setActive("CUSTOM")
-              }
-            >
-              CUSTOM CANDIDATE
+    <button
+      className={
+        active === "B"
+          ? "tab active"
+          : "tab"
+      }
+      onClick={() =>
+        setActive("B")
+      }
+    >
+      CANDIDATE B
 
-              <small>
-                USE YOUR OWN RESUME
-              </small>
-            </button>
+      <small>
+        ANANYA IYER
+      </small>
+    </button>
 
-          </div>
+    <button
+      className={
+        active === "CUSTOM"
+          ? "tab active custom-tab"
+          : "tab custom-tab"
+      }
+      onClick={() =>
+        setActive("CUSTOM")
+      }
+    >
+      CUSTOM CANDIDATE
+
+      <small>
+        USE YOUR OWN RESUME
+      </small>
+    </button>
+
+  </div>
+
+  <button
+    className="ghost demo-button"
+    onClick={loadDemo}
+  >
+    ↺ Load official demo data
+  </button>
+
+</div>
 
           {/* INPUTS */}
 
