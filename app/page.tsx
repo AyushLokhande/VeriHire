@@ -343,7 +343,6 @@ function AgentCard({
             {Math.round(
   opinion.confidence
 )}
-%
             %
           </b>
         </div>
