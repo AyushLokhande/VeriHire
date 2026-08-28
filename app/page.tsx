@@ -321,8 +321,9 @@ function AgentCard({
           </div>
         </div>
 
-        <span className="badge">
-          INDEPENDENT
+        <span className="agent-status">
+          
+          
         </span>
       </div>
 
