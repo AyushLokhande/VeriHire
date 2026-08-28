@@ -778,51 +778,96 @@ function ComparisonModal({
     Find an agent score without depending on an exact
     capitalization/name match.
   */
-  const getScore = (
-    opinions: AgentOpinion[],
-    keywords: string[]
-  ) => {
-    const opinion = opinions.find((item) => {
-      const name = item.agent.toLowerCase();
+const getScore = (
+  opinions: AgentOpinion[],
+  type: "technical" | "hiring" | "skeptic"
+) => {
+  const normalized = opinions.map((opinion) => ({
+    ...opinion,
+    agentName: opinion.agent.toLowerCase(),
+  }));
 
-      return keywords.some((keyword) =>
-        name.includes(keyword.toLowerCase())
-      );
-    });
+  let match = null;
 
-    return opinion?.score ?? null;
-  };
+  if (type === "technical") {
+    match = normalized.find((opinion) =>
+      opinion.agentName.includes("technical")
+    );
+  }
 
-  const technicalA = getScore(
-    results.A.opinions,
-    ["technical"]
-  );
+  if (type === "hiring") {
+    match = normalized.find(
+      (opinion) =>
+        opinion.agentName.includes("hiring") ||
+        opinion.agentName.includes("manager")
+    );
+  }
 
-  const technicalB = getScore(
-    results.B.opinions,
-    ["technical"]
-  );
+  if (type === "skeptic") {
+    match = normalized.find(
+      (opinion) =>
+        opinion.agentName.includes("skeptic") ||
+        opinion.agentName.includes("risk")
+    );
+  }
 
-  const hiringA = getScore(
-    results.A.opinions,
-    ["hiring", "manager"]
-  );
+  /*
+   * Fallback:
+   * The demo panel always contains the four agents
+   * in this order:
+   *
+   * 0 = Technical
+   * 1 = HR / Culture
+   * 2 = Hiring Manager
+   * 3 = Skeptic
+   */
 
-  const hiringB = getScore(
-    results.B.opinions,
-    ["hiring", "manager"]
-  );
+  if (!match) {
+    const fallbackIndex =
+      type === "technical"
+        ? 0
+        : type === "hiring"
+        ? 2
+        : 3;
 
-  const skepticA = getScore(
-    results.A.opinions,
-    ["skeptic", "risk"]
-  );
+    match = normalized[fallbackIndex] ?? null;
+  }
 
-  const skepticB = getScore(
-    results.B.opinions,
-    ["skeptic", "risk"]
-  );
+  return match?.score ?? null;
+};
 
+
+const technicalA = getScore(
+  results.A.opinions,
+  "technical"
+);
+
+const technicalB = getScore(
+  results.B.opinions,
+  "technical"
+);
+
+
+const hiringA = getScore(
+  results.A.opinions,
+  "hiring"
+);
+
+const hiringB = getScore(
+  results.B.opinions,
+  "hiring"
+);
+
+
+const skepticA = getScore(
+  results.A.opinions,
+  "skeptic"
+);
+
+const skepticB = getScore(
+  results.B.opinions,
+  "skeptic"
+);
   return (
     <div
       className="modal-backdrop"
